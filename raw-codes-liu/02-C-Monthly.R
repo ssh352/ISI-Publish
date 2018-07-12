@@ -40,3 +40,4 @@ Data_Monthly %>%
   geom_line() + 
   theme_gray(base_family = "STKaiti")
 
+write.csv(Data_Monthly, "investor.csv")
