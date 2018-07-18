@@ -13,7 +13,7 @@ load("~/Documents/Stock Data/D-Stock-Daily-L2-Indicators-tmp.RData")
 load("~/Documents/Stock Data/D-Index-Daily-Data.RData")
 
 
-#####----投资者情绪指标----#####
+#####----构建投资者情绪指标----#####
 
 # Join data
 Stock_Daily_Data <- Stock_Daily_Data %>% 
@@ -101,24 +101,39 @@ IS_Factor_Daily_Data <- Index_Daily_Data %>%
 
 # correlation with future return
 IS_Factor_Daily_Data %>% 
-  # summarise_all(funs(sum(is.na(.))))
   filter(TRADE_DT >= "20101008") %>%
   select(-TRADE_DT) %>% 
   cor(use = "p")
 
+
+#####----生成投资者情绪指数----#####
+
+# 保留相关性分析通过的指标
 IS_Factor_Daily_Data <- IS_Factor_Daily_Data %>% 
   select(TRADE_DT, TURN, ADVR, PCTLO, RLSP, PLD, PNI) %>% 
-  mutate_all(na.locf, na.rm = FALSE) %>% 
-  filter(complete.cases(.))
+  filter(TRADE_DT >= "20101008") %>% 
+  mutate_all(na.locf, na.rm = FALSE)
 
 # PCA
 ISI_Daily <- IS_Factor_Daily_Data %>% 
-  select(-TRADE_DT) %>% 
-  princomp( ~ ., data = .) %>% 
-  # summary()
+  prcomp(~ . - TRADE_DT, data = ., scale = TRUE) %>% 
   predict() %>% 
-  `[`(, 1) %>% 
-  tibble(ISI = .) %>% 
-  bind_cols(IS_Factor_Daily_Data[, 1], .)
+  as_tibble() %>% 
+  bind_cols(IS_Factor_Daily_Data, .) %>% 
+  select(TRADE_DT, ISI = PC1) %>% 
+  mutate(ISI = -ISI)
+
+# 合并指数数据
+ISI_Daily <- Index_Daily_Data %>% 
+  filter(S_INFO_WINDCODE == "000001.SH") %>% 
+  select(TRADE_DT, S_DQ_CLOSE) %>% 
+  left_join(ISI_Daily, .)
 
 save(ISI_Daily, file = "./data/ISI-Daily.RData")
+
+## Plot with index
+ISI_Daily %>% 
+  mutate(S_DQ_CLOSE = scale(S_DQ_CLOSE)) %>% 
+  gather(key, value, -TRADE_DT) %>% 
+  ggplot(aes(x = ymd(TRADE_DT), y = value, color = key)) + 
+  geom_line()
