@@ -7,77 +7,87 @@ navbarPage(
   tabPanel(
     title = "投资者情绪", 
     
-    sidebarLayout(
-      sidebarPanel(
-        width = 3, 
-        
-        dateRangeInput(
-          inputId = "IS_date_range", 
-          label = "数据区间", 
-          start = start_date, 
-          end = Sys.Date(), 
-          min = start_date, 
-          max = Sys.Date(), 
-          startview = "year", 
-          language = "zh-CN", 
-          separator = "至"
-        ), 
-        
-        downloadButton(
-          outputId = "download_ISI_data", 
-          label = "下载数据"
-        )
+    tabsetPanel(
+      tabPanel(
+        title = "月度指标"
       ), 
       
-      mainPanel(
-        width = 9, 
+      tabPanel(
+        title = "周度指标"
+      ), 
+      
+      tabPanel(
+        title = "日度指标", 
         
-        tabsetPanel(
-          tabPanel(
-            title = "月度指标"
+        sidebarLayout(
+          sidebarPanel(
+            width = 2, 
+            
+            dateRangeInput(
+              inputId = "ISI_daily_date_range", 
+              label = "数据区间", 
+              start = start_date, 
+              end = Sys.Date(), 
+              min = start_date, 
+              max = Sys.Date(), 
+              startview = "year", 
+              language = "zh-CN", 
+              separator = "至"
+            ), 
+            
+            checkboxInput(
+              inputId = "ISI_daily_disp_SSEC", 
+              label = "显示上证指数"
+            ), 
+            
+            checkboxInput(
+              inputId = "ISI_daily_disp_DT", 
+              label = "显示数据"
+            ), 
+            
+            downloadButton(
+              outputId = "download_ISI_daily_data", 
+              label = "下载数据"
+            )
           ), 
           
-          tabPanel(
-            title = "周度指标"
-          ), 
-          
-          tabPanel(
-            title = "日度指标", 
+          mainPanel(
+            width = 10, 
             
             plotOutput(
-              outputId = "ISI_plot", 
-              hover = "ISI_plot_hover", 
+              outputId = "ISI_daily_plot", 
+              hover = "ISI_daily_plot_hover", 
               brush = brushOpts(
-                id = "ISI_plot_brush", 
+                id = "ISI_daily_plot_brush", 
                 direction = "x"
               )
             ), 
             
             verbatimTextOutput(
-              outputId = "ISI_point"
+              outputId = "ISI_daily_point"
             ), 
             
             plotOutput(
-              outputId = "ISI_plot_zoom"
+              outputId = "ISI_daily_plot_zoom"
             ), 
             
             dataTableOutput(
-              outputId = "ISI_data"
+              outputId = "ISI_daily_data"
             ), 
             
             verbatimTextOutput(
               outputId = "test1", 
               placeholder = TRUE
             )
-          ), 
-          
-          tabPanel(
-            title = "日内指标", 
-            
-            verbatimTextOutput(
-              outputId = "test2"
-            )
           )
+        )
+      ), 
+      
+      tabPanel(
+        title = "日内指标", 
+        
+        verbatimTextOutput(
+          outputId = "test2"
         )
       )
     )
