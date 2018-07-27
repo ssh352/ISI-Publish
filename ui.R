@@ -169,8 +169,13 @@ navbarPage(
   # 大标签——更多(可内涵更多大标签)
   navbarMenu(
     title = "更多", 
+    
+    "----", 
+    
     tabPanel(
-      title = "关于"
+      title = "关于", 
+      
+      img("bar-madis.png")
     )
   )
 )
