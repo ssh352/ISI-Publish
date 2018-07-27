@@ -115,7 +115,7 @@ IS_Factor_Daily_Data <- IS_Factor_Daily_Data %>%
   mutate_all(na.locf, na.rm = FALSE)
 
 # PCA
-ISI_Daily <- IS_Factor_Daily_Data %>% 
+ISI_Daily_Data <- IS_Factor_Daily_Data %>% 
   prcomp(~ . - TRADE_DT, data = ., scale = TRUE) %>% 
   predict() %>% 
   as_tibble() %>% 
@@ -124,16 +124,19 @@ ISI_Daily <- IS_Factor_Daily_Data %>%
   mutate(ISI = -ISI)
 
 # 合并指数数据
-ISI_Daily <- Index_Daily_Data %>% 
+ISI_Daily_Data <- Index_Daily_Data %>% 
   filter(S_INFO_WINDCODE == "000001.SH") %>% 
   select(TRADE_DT, S_DQ_CLOSE) %>% 
-  left_join(ISI_Daily, .)
+  left_join(ISI_Daily_Data, .)
 
-save(ISI_Daily, file = "./data/ISI-Daily.RData")
+# 调整数据结构
+ISI_Daily_Data <- ISI_Daily_Data %>% 
+  mutate(TRADE_DT = ymd(TRADE_DT), 
+         ISI = round(ISI * 200, 3)) %>% 
+  rename(`交易日期` = TRADE_DT, 
+         `投资者情绪指数` = ISI, 
+         `上证指数` = S_DQ_CLOSE)
 
-## Plot with index
-ISI_Daily %>% 
-  mutate(S_DQ_CLOSE = scale(S_DQ_CLOSE)) %>% 
-  gather(key, value, -TRADE_DT) %>% 
-  ggplot(aes(x = ymd(TRADE_DT), y = value, color = key)) + 
-  geom_line()
+start_date <- ISI_Daily_Data[1, "交易日期", drop = T]
+
+save(ISI_Daily_Data, start_date, file = "./data/ISI-Daily-Data.RData")

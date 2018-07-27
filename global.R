@@ -1,14 +1,15 @@
 library(shiny)
+library(shinythemes)
 library(tidyverse)
 library(lubridate)
 library(DT)
 
-load("./data/ISI-Daily.RData")
+load("./data/ISI-Daily-Data.RData")
 
-ISI_Daily <- ISI_Daily %>% 
-  mutate(TRADE_DT = ymd(TRADE_DT), 
-         ISI = ISI * 1000) %>% 
-  rename(SSEC = S_DQ_CLOSE) %>% 
-  gather(key, value, -TRADE_DT)
+ISI <- ISI_Daily_Data %>% 
+  filter(`指数` == "投资者情绪指数") %>% 
+  pull(`指数取值`)
 
-start_date <- ISI_Daily[1, "TRADE_DT", drop = T]
+most_recent_ISI_daily <- nth(ISI, -1)
+
+change_ISI_daily <- nth(ISI, -1) - nth(ISI, -2)
