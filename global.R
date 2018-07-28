@@ -3,6 +3,7 @@ library(shinythemes)
 library(tidyverse)
 library(lubridate)
 library(DT)
+library(recharts)
 
 load("./data/ISI-Daily-Data.RData")
 
