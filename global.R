@@ -5,12 +5,7 @@ library(lubridate)
 library(DT)
 library(recharts)
 
-load("./data/ISI-Daily-Data.RData")
-
-ISI <- ISI_Daily_Data %>% 
-  filter(`指数` == "投资者情绪指数") %>% 
-  pull(`指数取值`)
-
-most_recent_ISI_daily <- nth(ISI, -1)
-
-change_ISI_daily <- nth(ISI, -1) - nth(ISI, -2)
+load("./data/02-D-ISI-Monthly-Data.RData")
+load("./data/04-D-ISI-Daily-Data.RData")
+load("./data/06-D-Liquidity-Daily-Data.RData")
+load(("./data/07-D-Correlation-Daily-Data.RData"))

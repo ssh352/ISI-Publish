@@ -16,7 +16,91 @@ navbarPage(
       tabPanel(
         title = "月度指标", 
         
-        eChartOutput("plot.graph")
+        # 月度指标下的sidebar布局
+        sidebarLayout(
+          # sidebar面板
+          sidebarPanel(
+            width = 2, 
+            
+            # 数据区间
+            dateRangeInput(
+              inputId = "ISI_monthly_date_range", 
+              label = "数据区间", 
+              start = ISI_Monthly_Data$统计月度[1], 
+              end = Sys.Date(), 
+              min = ISI_Monthly_Data$统计月度[1], 
+              max = Sys.Date(), 
+              startview = "year", 
+              language = "zh-CN", 
+              separator = "至"
+            ), 
+            
+            # 是否显示上证指数
+            checkboxInput(
+              inputId = "ISI_monthly_disp_SSEC", 
+              label = "显示上证指数", 
+              value = TRUE
+            ), 
+            
+            # 是否显示DT
+            checkboxInput(
+              inputId = "ISI_monthly_disp_DT", 
+              label = "显示数据"
+            ), 
+            
+            # 下载数据
+            downloadButton(
+              outputId = "download_ISI_monthly_data", 
+              label = "下载数据"
+            )
+          ), 
+          
+          # 主面板
+          mainPanel(
+            width = 10, 
+            
+            # 走势分析
+            h5(
+              "上月的投资者情绪指数值为", 
+              last(ISI_Monthly), 
+              "点, 较前一月份", 
+              if_else(last(ISI_Monthly) - nth(ISI_Monthly, -2) > 0, "上升", "下降"), 
+              last(ISI_Monthly) - nth(ISI_Monthly, -2), "点."
+            ), 
+            
+            br(), 
+            
+            # 主图
+            plotOutput(
+              outputId = "ISI_monthly_plot", 
+              hover = "ISI_monthly_plot_hover", 
+              brush = brushOpts(
+                id = "ISI_monthly_plot_brush", 
+                direction = "x"
+              )
+            ), 
+            
+            # 鼠标悬停数据点信息
+            verbatimTextOutput(
+              outputId = "ISI_monthly_point"
+            ), 
+            
+            br(), 
+            
+            # 鼠标框选放大图片
+            conditionalPanel(
+              condition = "input.ISI_monthly_plot_brush", 
+              plotOutput(
+                outputId = "ISI_monthly_plot_zoom"
+              )
+            ), 
+            
+            # DT数据展示
+            dataTableOutput(
+              outputId = "ISI_monthly_data"
+            )
+          )
+        )
       ), 
       
       # # 周度指标 ==========
@@ -38,9 +122,9 @@ navbarPage(
             dateRangeInput(
               inputId = "ISI_daily_date_range", 
               label = "数据区间", 
-              start = start_date, 
+              start = ISI_Daily_Data$交易日期[1], 
               end = Sys.Date(), 
-              min = start_date, 
+              min = ISI_Daily_Data$交易日期[1], 
               max = Sys.Date(), 
               startview = "year", 
               language = "zh-CN", 
@@ -72,8 +156,12 @@ navbarPage(
             width = 10, 
             
             # 走势分析
-            uiOutput(
-              outputId = "ISI_daily_analysis"
+            h5(
+              "昨日的投资者情绪指数值为", 
+              last(ISI_Daily), 
+              "点, 较前一交易日", 
+              if_else(last(ISI_Daily) - nth(ISI_Daily, -2) >= 0, "上升", "下降"), 
+              last(ISI_Daily) - nth(ISI_Daily, -2), "点."
             ), 
             
             br(), 
@@ -158,14 +246,186 @@ navbarPage(
     )
   ), 
   
-  # 大标签——流动性 ==========
+  # 大标签——市场流动性 ==========
   tabPanel(
-    title = "流动性"
+    title = "市场流动性", 
+    
+    # 流动性的sidebar布局
+    sidebarLayout(
+      # sidebar面板
+      sidebarPanel(
+        width = 2, 
+        
+        # 数据区间
+        dateRangeInput(
+          inputId = "Liquidity_daily_date_range", 
+          label = "数据区间", 
+          start = Liquidity_Daily_Data$交易日期[1], 
+          end = Sys.Date(), 
+          min = Liquidity_Daily_Data$交易日期[1], 
+          max = Sys.Date(), 
+          startview = "year", 
+          language = "zh-CN", 
+          separator = "至"
+        ), 
+        
+        # 是否显示上证指数
+        checkboxInput(
+          inputId = "Liquidity_daily_disp_SSEC", 
+          label = "显示上证指数", 
+          value = TRUE
+        ), 
+        
+        # 是否显示DT
+        checkboxInput(
+          inputId = "Liquidity_daily_disp_DT", 
+          label = "显示数据"
+        ), 
+        
+        # 下载数据
+        downloadButton(
+          outputId = "download_Liquidity_daily_data", 
+          label = "下载数据"
+        )
+      ), 
+      
+      # 主面板
+      mainPanel(
+        width = 10, 
+        
+        # 走势分析
+        h5(
+          "昨日的市场流动性指数值为", 
+          last(Liquidity_Daily), 
+          "点, 较前一交易日", 
+          if_else(last(Liquidity_Daily) - nth(Liquidity_Daily, -2) >= 0, "上升", "下降"), 
+          last(Liquidity_Daily) - nth(Liquidity_Daily, -2), "点."
+        ), 
+        
+        br(), 
+        
+        # 主图
+        plotOutput(
+          outputId = "Liquidity_daily_plot", 
+          hover = "Liquidity_daily_plot_hover", 
+          brush = brushOpts(
+            id = "Liquidity_daily_plot_brush", 
+            direction = "x"
+          )
+        ), 
+        
+        # 鼠标悬停数据点信息
+        verbatimTextOutput(
+          outputId = "Liquidity_daily_point"
+        ), 
+        
+        br(), 
+        
+        # 鼠标框选放大图片
+        conditionalPanel(
+          condition = "input.Liquidity_daily_plot_brush", 
+          plotOutput(
+            outputId = "Liquidity_daily_plot_zoom"
+          )
+        ), 
+        
+        # DT数据展示
+        dataTableOutput(
+          outputId = "Liquidity_daily_data"
+        )
+      )
+    )
   ), 
   
-  # 大标签——联动性 ==========
+  # 大标签——股票间交互强度 ==========
   tabPanel(
-    title = "联动性"
+    title = "股票间交互强度", 
+    
+    # 股票间交互强度的sidebar布局
+    sidebarLayout(
+      # sidebar面板
+      sidebarPanel(
+        width = 2, 
+        
+        # 数据区间
+        dateRangeInput(
+          inputId = "Correlation_daily_date_range", 
+          label = "数据区间", 
+          start = Correlation_Daily_Data$交易日期[1], 
+          end = Sys.Date(), 
+          min = Correlation_Daily_Data$交易日期[1], 
+          max = Sys.Date(), 
+          startview = "year", 
+          language = "zh-CN", 
+          separator = "至"
+        ), 
+        
+        # 是否显示上证指数
+        checkboxInput(
+          inputId = "Correlation_daily_disp_SSEC", 
+          label = "显示上证指数", 
+          value = TRUE
+        ), 
+        
+        # 是否显示DT
+        checkboxInput(
+          inputId = "Correlation_daily_disp_DT", 
+          label = "显示数据"
+        ), 
+        
+        # 下载数据
+        downloadButton(
+          outputId = "download_Correlation_daily_data", 
+          label = "下载数据"
+        )
+      ), 
+      
+      # 主面板
+      mainPanel(
+        width = 10, 
+        
+        # 走势分析
+        h5(
+          "昨日的股票间交互强度指数值为", 
+          last(Correlation_Daily), 
+          "点, 较前一交易日", 
+          if_else(last(Correlation_Daily) - nth(Correlation_Daily, -2) >= 0, "上升", "下降"), 
+          last(Correlation_Daily) - nth(Correlation_Daily, -2), "点."
+        ), 
+        
+        br(), 
+        
+        # 主图
+        plotOutput(
+          outputId = "Correlation_daily_plot", 
+          hover = "Correlation_daily_plot_hover", 
+          brush = brushOpts(
+            id = "Correlation_daily_plot_brush", 
+            direction = "x"
+          )
+        ), 
+        
+        # 鼠标悬停数据点信息
+        verbatimTextOutput(
+          outputId = "Correlation_daily_point"
+        ), 
+        
+        br(), 
+        
+        # 鼠标框选放大图片
+        conditionalPanel(
+          condition = "input.Correlation_daily_plot_brush", 
+          plotOutput(
+            outputId = "Correlation_daily_plot_zoom"
+          )
+        ), 
+        
+        # DT数据展示
+        dataTableOutput(
+          outputId = "Correlation_daily_data"
+        )
+      )
+    )
   ), 
   
   # 大标签——更多(可内涵更多大标签) ==========
